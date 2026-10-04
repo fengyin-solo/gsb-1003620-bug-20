@@ -63,6 +63,37 @@
       </tbody>
     </table>
 
+    <section v-if="archiveRows.length" class="archive-block">
+      <h3>归档清单（终态记录）</h3>
+      <table class="data-table archive-table">
+        <thead>
+          <tr>
+            <th v-for="column in columns" :key="column">{{ column }}</th>
+            <th>当前状态</th>
+            <th>可执行动作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in archiveRows" :key="'arc-' + String(row.id)" :class="{ 'row-abnormal': row.abnormal }">
+            <td v-for="column in columns" :key="column">{{ row[column] ?? '—' }}</td>
+            <td>{{ row.status }}<span v-if="row.abnormal" class="abnormal-tag">异常</span></td>
+            <td class="row-actions">
+              <button
+                v-for="action in actions"
+                :key="action"
+                class="link"
+                type="button"
+                @click="runAction(action, row)"
+              >
+                {{ action }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="archive-hint">共 {{ archiveTotal }} 条林木生长已归档（含异常终态），不计入登记总量。</p>
+    </section>
+
     <footer class="page-foot">
       <span>共 {{ total }} 条林木生长记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
@@ -75,6 +106,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import {
   downloadEntries,
+  listArchive,
   listEntries,
   moduleMeta,
   runAction as applyAction,
@@ -89,6 +121,8 @@ const stats = [{"label": "样地数量", "value": 0}, {"label": "待审核记录
 
 const rows = ref<EntryRow[]>([])
 const total = ref(0)
+const archiveRows = ref<EntryRow[]>([])
+const archiveTotal = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
@@ -128,6 +162,9 @@ function reload() {
     const payload = listEntries(meta.key, filters.value)
     rows.value = payload.items
     total.value = payload.total
+    const archive = listArchive(meta.key)
+    archiveRows.value = archive.items
+    archiveTotal.value = archive.total
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '林木生长列表读取失败'
   }

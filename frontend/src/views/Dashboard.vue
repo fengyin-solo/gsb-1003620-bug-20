@@ -17,7 +17,7 @@
     </div>
     <table class="data-table">
       <thead>
-        <tr><th>业务模块</th><th>今日新增</th><th>待处理</th><th>异常量</th></tr>
+        <tr><th>业务模块</th><th>登记总量</th><th>待处理</th><th>异常量</th><th>已归档</th></tr>
       </thead>
       <tbody>
         <tr v-for="row in moduleRows" :key="row.name">
@@ -25,11 +25,12 @@
           <td>{{ row.created }}</td>
           <td>{{ row.pending }}</td>
           <td>{{ row.abnormal }}</td>
+          <td>{{ row.archived }}</td>
         </tr>
       </tbody>
     </table>
     <footer class="page-foot">
-      <span>数据保存在本机浏览器里，换浏览器或清缓存会回到示例数据</span>
+      <span>登记总量只计活动台账；异常与已归档记录转入归档清单，不再重复显示。数据保存在本机浏览器里，换浏览器或清缓存会回到示例数据</span>
     </footer>
   </section>
 </template>

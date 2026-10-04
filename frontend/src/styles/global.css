@@ -35,3 +35,9 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .error-text { color: #b42318; }
 .status-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 10px; font-size: 12px; color: var(--muted); }
 .legend-item { background: #eef2f7; border-radius: 999px; padding: 2px 10px; }
+.archive-block { margin-top: 18px; }
+.archive-block h3 { font-size: 14px; margin: 0 0 8px; color: #334155; }
+.archive-table { opacity: 0.92; }
+.archive-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.abnormal-tag { margin-left: 6px; background: #fef3f2; color: #b42318; border: 1px solid #fda29b; border-radius: 999px; padding: 0 8px; font-size: 11px; }
+.row-abnormal td { background: #fffbfa; }

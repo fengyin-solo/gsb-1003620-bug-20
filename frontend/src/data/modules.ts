@@ -1,4 +1,4 @@
-import type { ModuleMeta } from './types'
+import type { ModuleMeta, RowFlags } from './types'
 
 // 模块元数据由仓库生成时写入：字段、状态、动作、流转目标都在这里，页面不再各自写一遍。
 export const MODULES: ModuleMeta[] = [
@@ -205,3 +205,73 @@ export const MODULES: ModuleMeta[] = [
 export const MODULE_BY_KEY: Map<string, ModuleMeta> = new Map(
   MODULES.map((item) => [item.key, item]),
 )
+
+/**
+ * 统一阈值与标准口径：全系统只按「当前状态」给记录打标，动作名、seed 里写死的旧标志都不再参与判定。
+ * 三类标签互斥、不重不漏：
+ *  - 异常（负向终态）：异常 / 故障 / 驳回 / 拒绝 / 取消 / 中止 / 作废 / 误报 / 关闭 / 荒废 / 退化 / 过期 / 禁止
+ *  - 健康稳态（仍在册的正常运行态）：正常 / 完好 / 充足 / 可用 / 待命 / 检查 / 待命 等
+ *  - 完成类终态：已完成 / 已归档 / 已交接 / 已扑灭 / 已撤回 / 已批准 / 已执行 等
+ * 归档 = 异常终态 ∪ 完成类终态；待处理 = 未归档且不是健康稳态；异常 = 归档里的负向终态。
+ */
+const ABNORMAL_STATUS_HINTS = [
+  '异常',
+  '故障',
+  '驳回',
+  '拒绝',
+  '取消',
+  '中止',
+  '作废',
+  '误报',
+  '关闭',
+  '荒废',
+  '退化',
+  '过期',
+  '报废',
+  '禁止',
+]
+
+const DONE_STATUS_HINTS = [
+  '已完成',
+  '已归档',
+  '已交接',
+  '已扑灭',
+  '已撤回',
+  '已批准',
+  '已执行',
+  '已修正',
+  '已总结',
+  '已实施',
+]
+
+const HEALTHY_STATUS_HINTS = [
+  '正常',
+  '完好',
+  '充足',
+  '可用',
+  '待命',
+  '检查',
+]
+
+function matchAny(status: string, hints: string[]): boolean {
+  return hints.some((hint) => status.includes(hint))
+}
+
+/** 标准口径：由状态推导 归档 / 待处理 / 异常，概览、台账、归档清单共用这一个出口。 */
+export function flagsForStatus(status: string): RowFlags {
+  const abnormal = matchAny(status, ABNORMAL_STATUS_HINTS)
+  const done = matchAny(status, DONE_STATUS_HINTS)
+  const healthy = matchAny(status, HEALTHY_STATUS_HINTS)
+  const archived = abnormal || done
+  return { archived, abnormal, pending: !archived && !healthy }
+}
+
+/** 终态（归档）状态集合：统一口径下应退出活动台账、转入归档清单的状态。 */
+export function archivedStatuses(meta: ModuleMeta): Set<string> {
+  return new Set(meta.statuses.filter((status) => flagsForStatus(status).archived))
+}
+
+/** 状态必须落在模块登记的状态域内，超出范围一律不允许保存。 */
+export function isKnownStatus(meta: ModuleMeta, status: string): boolean {
+  return meta.statuses.includes(status)
+}
