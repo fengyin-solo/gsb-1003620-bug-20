@@ -3,9 +3,10 @@
     <header class="page-head">
       <div>
         <h2>运营概览</h2>
-        <p class="page-desc">汇总各业务模块的关键指标，先看总量再看异常。</p>
+        <p class="page-desc">汇总各业务模块的关键指标，先看总量再看异常；台账与归档清单同次落库、同一口径。</p>
       </div>
       <div class="page-actions">
+        <RouterLink class="btn" to="/archive">查看归档清单</RouterLink>
         <button class="btn" type="button" @click="refresh">重新统计</button>
       </div>
     </header>
@@ -17,7 +18,7 @@
     </div>
     <table class="data-table">
       <thead>
-        <tr><th>业务模块</th><th>今日新增</th><th>待处理</th><th>异常量</th></tr>
+        <tr><th>业务模块</th><th>登记总量</th><th>待处理</th><th>异常量</th><th>已归档</th></tr>
       </thead>
       <tbody>
         <tr v-for="row in moduleRows" :key="row.name">
@@ -25,6 +26,7 @@
           <td>{{ row.created }}</td>
           <td>{{ row.pending }}</td>
           <td>{{ row.abnormal }}</td>
+          <td>{{ row.archived }}</td>
         </tr>
       </tbody>
     </table>
@@ -35,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 import { loadOverview } from '@/api/local-service'
+import { onDataChange } from '@/data/events'
 import type { OverviewResult } from '@/data/types'
 
 const cards = ref<OverviewResult['cards']>([])
@@ -49,5 +52,8 @@ function refresh() {
   moduleRows.value = payload.modules
 }
 
+const unsubscribe = onDataChange(refresh)
+
 onMounted(refresh)
+onUnmounted(unsubscribe)
 </script>

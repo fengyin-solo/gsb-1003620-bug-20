@@ -63,9 +63,14 @@ npm run build
 
 ## 约定
 
-- 每个模块的页面在 `frontend/src/views/<模块>/index.vue`，页面只负责渲染，读写统一走
-  `frontend/src/api/local-service.ts`。
+- 每个模块的页面在 `frontend/src/views/<模块>/index.vue`，页面只负责渲染（统一走
+  `components/ModulePage.vue`），读写统一走 `frontend/src/api/local-service.ts`。
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
+- 状态怎么判（待处理/异常/终态归档）、字段取值阈值，统一以 `frontend/src/data/rules.ts`
+  为准，概览、台账、归档清单共用同一套口径，不存各算各的标记。
+- 台账与归档清单在同一次落库里写入（单个 localStorage 键、一次事务），落库失败整笔退回。
+  旧版本数据首次读取时按原状态自动补算：终态记录移入归档清单，`pending/abnormal`
+  标记按统一口径重算，不改动原 `status`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
 - 想回到初始数据：清掉浏览器里 `forest-fire-patrol:entries` 这一项，或调用 `resetModule(模块)`。

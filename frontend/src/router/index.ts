@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Dashboard from '@/views/Dashboard.vue'
+const Archive = () => import('@/views/archive/index.vue')
 const Patrol = () => import('@/views/patrol/index.vue')
 const Firewatch = () => import('@/views/firewatch/index.vue')
 const Lookout = () => import('@/views/lookout/index.vue')
@@ -24,6 +25,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
+    { path: '/archive', name: 'archive', component: Archive },
     { path: '/patrol', name: 'patrol', component: Patrol },
     { path: '/firewatch', name: 'firewatch', component: Firewatch },
     { path: '/lookout', name: 'lookout', component: Lookout },

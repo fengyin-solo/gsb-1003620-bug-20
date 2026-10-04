@@ -8,6 +8,12 @@ export type EntryRow = {
   [field: string]: string | number | boolean
 }
 
+export type ArchiveRow = EntryRow & {
+  归档模块: string
+  归档动作: string
+  归档时间: string
+}
+
 export type ModuleMeta = {
   key: string
   name: string
@@ -34,5 +40,12 @@ export type ActionResult = {
 
 export type OverviewResult = {
   cards: { label: string; value: number }[]
-  modules: { name: string; created: number; pending: number; abnormal: number }[]
+  modules: {
+    name: string
+    created: number
+    pending: number
+    abnormal: number
+    archived: number
+  }[]
+  archivedAbnormal: number
 }
